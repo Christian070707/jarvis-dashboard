@@ -64,16 +64,7 @@ def main() -> int:
     def shutdown() -> None:
         server.should_exit = True
 
-    use_browser = "--browser" in sys.argv
-    webview = None
-    if not use_browser:
-        try:
-            import webview  # type: ignore
-        except Exception as e:  # noqa: BLE001
-            log.warning("pywebview niet beschikbaar (%s); val terug op de browser", e)
-            use_browser = True
-
-    if use_browser:
+    def run_in_browser() -> int:
         webbrowser.open(url)
         print(f"{APP_NAME} draait op {url}  (Ctrl+C om te stoppen)")
         try:
@@ -83,7 +74,15 @@ def main() -> int:
             shutdown()
         return 0
 
-    window = webview.create_window(APP_NAME, url, width=1500, height=950, min_size=(900, 600))
+    if "--browser" in sys.argv:
+        return run_in_browser()
+    try:
+        import webview  # type: ignore
+
+        window = webview.create_window(APP_NAME, url, width=1500, height=950, min_size=(900, 600))
+    except Exception as e:  # noqa: BLE001
+        log.warning("geen app-venster mogelijk (%s); open in de browser", e)
+        return run_in_browser()
 
     # Tray-icoon (optioneel; pystray kan ontbreken of geen backend hebben)
     tray = None
@@ -131,7 +130,17 @@ def main() -> int:
                 pass
 
     window.events.closed += on_closed
-    webview.start()
+    try:
+        webview.start()
+    except Exception as e:  # noqa: BLE001
+        # Geen GTK/QT/WebView2 beschikbaar: niet crashen, maar in de browser openen.
+        log.warning("app-venster kon niet starten (%s); open in de browser", e)
+        if tray:
+            try:
+                tray.stop()
+            except Exception:  # noqa: BLE001
+                pass
+        return run_in_browser()
     shutdown()
     return 0
 
