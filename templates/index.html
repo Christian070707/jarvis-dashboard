@@ -31,6 +31,7 @@
     <button id="btn-briefing" title="Briefing openen">◉ briefing</button>
     <button id="btn-focus" title="Focusmodus">◎ focus</button>
     <button id="btn-theme" title="Thema wisselen">◐ arc</button>
+    <a class="btn" href="/setup" title="Bronnen instellen">⚙</a>
     <button hx-post="/api/refresh" hx-swap="none" title="Alle bronnen nu verversen">⟳</button>
     <button hx-post="/dismiss/reset" hx-swap="none" hx-confirm="Alle verborgen items weer tonen?" title="Verborgen items terughalen">↺</button>
   </div>
@@ -42,7 +43,7 @@
 
 {% if not sources %}
 <div class="notice">
-  Nog geen bronnen ingesteld. Vul <code>.env</code> in met minimaal één URL of token en herstart. De eigen takenlijst werkt altijd.
+  Nog geen bronnen ingesteld. <a href="/setup">Open de instellingen</a> om je rooster, agenda's en Trello te koppelen. De eigen takenlijst werkt altijd.
 </div>
 {% endif %}
 

@@ -5,9 +5,18 @@ ongelezen mail (Gmail, Outlook), wekkers (Android) en een eigen takenlijst. Elk 
 naar de bron. Draait lokaal op `http://127.0.0.1:8000`.
 
 ## Starten
-Linux/Mac: `./start.sh` — Windows: dubbelklik `start.bat` (Python 3.12+ vereist).
-Het script maakt een venv, installeert alles en opent `http://127.0.0.1:8000`.
-Vul daarna `.env` in (wordt aangemaakt uit `.env.example`); leeg = bron uit.
+
+**Als app (aanbevolen)**: download de laatste release voor je systeem uit
+[Releases](../../releases), pak uit en start `Jarvis` (Windows: `Jarvis.exe`). Bij de eerste
+start opent de instellingenwizard. Je gegevens staan in je eigen gebruikersmap
+(Windows: `%APPDATA%\Jarvis`, Linux: `~/.local/share/Jarvis`, Mac: `~/Library/Application Support/Jarvis`).
+
+**Vanuit de broncode**: Linux/Mac `./start.sh`, Windows dubbelklik `start.bat` (Python 3.12+).
+Het script maakt een venv, installeert alles en opent `http://127.0.0.1:8000`. Ga naar
+`/setup` (⚙ op het dashboard) om bronnen te koppelen; `.env` is optioneel en dient als fallback.
+
+**Desktopvenster vanuit de broncode**: `pip install -r requirements-build.txt` en `python desktop.py`
+(of `python desktop.py --browser` zonder venster).
 
 Handmatig:
 ```bash
@@ -32,5 +41,9 @@ Tests: `.venv/bin/pytest`
 
 Status per bron staat bovenin de pagina (klik op een pil om die bron te verversen) en op `/api/status`.
 
-## Autostart
+## Zelf bouwen
+`scripts/build.sh` (Linux/Mac) of `scripts/build_windows.ps1` (Windows) maakt `dist/Jarvis/`.
+GitHub Actions bouwt bij elke push voor Windows, Linux en Mac; een tag `v*` maakt een release.
+
+## Autostart (Linux, zonder app)
 `cp scripts/dashboard.service ~/.config/systemd/user/ && systemctl --user enable --now dashboard`

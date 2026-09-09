@@ -47,6 +47,11 @@ CREATE TABLE IF NOT EXISTS alarms (
   received_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS source_status (
   source TEXT PRIMARY KEY,
   label TEXT NOT NULL,
@@ -154,6 +159,21 @@ class Database:
     def alarms(self) -> list[sqlite3.Row]:
         with self.connect() as c:
             return list(c.execute("SELECT * FROM alarms ORDER BY at"))
+
+    # ---- settings (wizard) ----
+    def get_settings(self) -> dict[str, str]:
+        with self.connect() as c:
+            return {r["key"]: r["value"] for r in c.execute("SELECT key, value FROM settings")}
+
+    def set_settings(self, values: dict[str, str]) -> None:
+        with self.connect() as c:
+            # Leeg wordt ook opgeslagen: zo kan de wizard een waarde uit .env uitschakelen.
+            for k, v in values.items():
+                c.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (k, "" if v is None else str(v)))
+
+    def clear_source_status(self, source: str) -> None:
+        with self.connect() as c:
+            c.execute("DELETE FROM source_status WHERE source = ?", (source,))
 
     # ---- status ----
     def set_status(

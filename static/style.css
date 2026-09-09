@@ -60,7 +60,8 @@ code { background: var(--panel-2); padding: 0 .3em; border-radius: 4px; font-fam
 .pill b { color: var(--cyan); font-weight: 600; }
 .pill.pulse { animation: pulse .9s ease-out 1; }
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb),.45); } 100% { box-shadow: 0 0 0 10px rgba(var(--accent-rgb),0); } }
-.actions { display: flex; gap: .3rem; }
+.actions { display: flex; gap: .3rem; align-items: center; }
+.actions .btn { text-decoration: none; }
 .actions button, .ghost { background: transparent; color: var(--cyan); border: 1px solid var(--line-strong); border-radius: 3px; padding: .3rem .7rem; font-family: var(--mono); font-size: .78rem; letter-spacing: .04em; transition: all .15s; }
 .actions button:hover, .ghost:hover { background: var(--cyan-soft); box-shadow: 0 0 12px rgba(var(--accent-rgb),.35); }
 .ghost.active { background: var(--cyan); color: var(--on-accent); }
@@ -253,3 +254,27 @@ body.focused > .grid, body.focused > .nextbar, body.focused > .briefing { filter
 .topbar, .nextbar, .briefing, .grid, .notice, .focus { position: relative; z-index: 1; }
 .topbar { z-index: 10; }
 .focus { z-index: 40; }
+
+/* ===== setup-wizard ===== */
+.setup { max-width: 900px; margin: 0 auto; padding: 1rem 1.2rem 3rem; display: flex; flex-direction: column; gap: 1rem; }
+.setup .intro { margin: .2rem 0 .4rem; }
+.setup .step { padding: .9rem 1.1rem; }
+.setup h2 { margin: 0 0 .4rem; font-size: .85rem; letter-spacing: .16em; text-transform: uppercase; color: var(--cyan); display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.setup .help { margin: .2rem 0 .6rem; color: var(--muted); font-size: .9rem; }
+.setup .row { display: flex; gap: .4rem; align-items: center; }
+.setup .row.wrap { flex-wrap: wrap; }
+.setup input, .setup select { flex: 1; min-width: 0; background: rgba(var(--bg-rgb),.6); color: var(--text); border: 1px solid var(--line); border-radius: 3px; padding: .45rem .6rem; font: inherit; }
+.setup input:focus, .setup select:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 8px rgba(var(--accent-rgb),.35); }
+.setup button, .btn { background: transparent; color: var(--cyan); border: 1px solid var(--line-strong); border-radius: 3px; padding: .45rem .8rem; font-family: var(--mono); font-size: .8rem; white-space: nowrap; }
+.setup button:hover, .btn:hover { background: var(--cyan-soft); }
+.setup button.primary { background: var(--cyan); color: var(--on-accent); font-weight: 700; padding: .6rem 1.2rem; }
+.setup .result { font-size: .85rem; font-family: var(--mono); min-height: 1.2em; }
+.setup .result .ok, .ok { color: var(--ok); }
+.setup .result .err, .err { color: var(--danger); }
+.setup .result .warn, .warn { color: var(--orange); }
+.setup details { margin-top: .6rem; }
+.setup summary { cursor: pointer; color: var(--muted); font-size: .85rem; }
+.setup .finish { display: flex; justify-content: flex-end; }
+.setup a { color: var(--cyan); text-decoration: underline; }
+.setup-body .topbar .actions .btn { text-decoration: none; }
+.pill.muted { color: var(--muted); }

@@ -10,4 +10,4 @@ python-dotenv==1.2.3
 python-multipart==0.0.32
 recurring-ical-events==3.8.2
 uvicorn==0.52.4
-tzdata==2025.3
+tzdata==2026.3

@@ -1,0 +1,59 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt
+      - run: pytest -q
+
+  build:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, name: windows }
+          - { os: ubuntu-latest,  name: linux }
+          - { os: macos-latest,   name: macos }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Linux systeempakketten voor pywebview/pystray
+        if: matrix.name == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y libgirepository1.0-dev gir1.2-webkit2-4.1 libcairo2-dev pkg-config python3-dev gobject-introspection libgtk-3-dev libayatana-appindicator3-dev
+      - run: pip install -r requirements-build.txt
+      - name: Linux pywebview GTK-backend
+        if: matrix.name == 'linux'
+        run: pip install pygobject
+      - run: pyinstaller jarvis.spec --noconfirm
+      - name: Inpakken
+        shell: bash
+        run: |
+          cd dist
+          if [ "${{ matrix.name }}" = "windows" ]; then 7z a ../Jarvis-${{ matrix.name }}.zip Jarvis; else tar czf ../Jarvis-${{ matrix.name }}.tar.gz Jarvis; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Jarvis-${{ matrix.name }}
+          path: |
+            Jarvis-*.zip
+            Jarvis-*.tar.gz
+      - name: Release bij tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            Jarvis-*.zip
+            Jarvis-*.tar.gz

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jarvis · instellen</title>
+  <script>
+    (function () { var t = null; try { t = localStorage.getItem('jarvis.theme'); } catch (e) {}
+      if (t && t !== 'arc') document.documentElement.dataset.theme = t; })();
+  </script>
+  <link rel="stylesheet" href="{{ static_url('style.css') }}">
+  <script src="{{ static_url('htmx.min.js') }}"></script>
+</head>
+<body class="setup-body">
+<div class="scanlines" aria-hidden="true"></div>
+<header class="topbar">
+  <div class="brand"><span class="reactor" aria-hidden="true"><i></i></span><h1>JARVIS</h1><span class="clock">instellen</span></div>
+  <div class="status"></div>
+  <div class="actions"><a class="btn" href="/">← naar dashboard</a></div>
+</header>
+
+<main class="setup">
+  <p class="intro">Koppel de bronnen die je gebruikt. Alles wat leeg blijft, staat uit. Je kunt hier altijd terugkomen via ⚙ op het dashboard.
+    <span class="muted small">Gegevens blijven op deze computer in <code>{{ data_dir }}</code>.</span></p>
+
+  {% macro status(name) -%}
+    {% if name in active %}{% set st = statuses.get(name) %}
+      {% if st and st.last_error %}<span class="pill err" title="{{ st.last_error }}">! fout</span>
+      {% elif st %}<span class="pill ok">actief · {{ st.item_count }} items</span>
+      {% else %}<span class="pill ok">actief</span>{% endif %}
+    {% else %}<span class="pill muted">uit</span>{% endif %}
+  {%- endmacro %}
+
+  <section class="panel step">
+    <h2>1 · Universiteit</h2>
+    <form hx-post="/setup/save" hx-target="find .result" hx-swap="innerHTML" class="row">
+      <select name="UNIVERSITY">
+        {% for key, u in universities.items() %}<option value="{{ key }}" {% if s.university == key %}selected{% endif %}>{{ u.name }}</option>{% endfor %}
+      </select>
+      <button type="submit">Opslaan</button><span class="result"></span>
+    </form>
+    <p class="help">Bepaalt de instructies hieronder en de links naar je rooster en Canvas.</p>
+  </section>
+
+  <section class="panel step">
+    <h2>2 · Rooster (TimeEdit) {{ status('timeedit') }}</h2>
+    <p class="help">{{ uni.timeedit_help }}</p>
+    <form class="row" hx-post="/setup/save" hx-target="find .result" hx-swap="innerHTML">
+      <input type="url" name="TIMEEDIT_ICS_URL" value="{{ s.timeedit_ics_url }}" placeholder="https://cloud.timeedit.net/…/ri….ics">
+      <button type="button" hx-post="/setup/test" hx-vals='{"source":"timeedit"}' hx-include="closest form" hx-target="next .result">Test</button>
+      <button type="submit">Opslaan</button><span class="result"></span>
+    </form>
+  </section>
+
+  <section class="panel step">
+    <h2>3 · Canvas-deadlines {{ status('canvas_ics') }}{{ status('canvas') }}</h2>
+    <p class="help">{{ uni.canvas_help }}</p>
+    <form class="row" hx-post="/setup/save" hx-target="find .result" hx-swap="innerHTML">
+      <input type="url" name="CANVAS_ICS_URL" value="{{ s.canvas_ics_url }}" placeholder="https://canvas…/feeds/calendars/user_….ics">
+      <button type="button" hx-post="/setup/test" hx-vals='{"source":"canvas_ics"}' hx-include="closest form" hx-target="next .result">Test</button>
+      <button type="submit">Opslaan</button><span class="result"></span>
+    </form>
+    <details><summary>Geavanceerd: Canvas-API-token (rijkere info, werkt niet bij elke instelling)</summary>
+      <p class="help">Canvas → Account → Instellingen → "Nieuw toegangstoken". Als de knop ontbreekt, staat je instelling het niet toe; de agendafeed hierboven werkt dan nog steeds.</p>
+      <form class="row" hx-post="/setup/save" hx-target="find .result" hx-swap="innerHTML">
+        <input type="url" name="CANVAS_BASE_URL" value="{{ s.canvas_base_url }}" placeholder="https://canvas.utwente.nl" style="max-width:16rem">
+        <input type="password" name="CANVAS_TOKEN" value="{{ s.canvas_token }}" placeholder="toegangstoken">
+        <button type="button" hx-post="/setup/test" hx-vals='{"source":"canvas"}' hx-include="closest form" hx-target="next .result">Test</button>
+        <button type="submit">Opslaan</button><span class="result"></span>
+      </form>
+    </details>
+  </section>
+
+  <section class="panel step">
+    <h2>4 · Google (agenda + Gmail) {{ status('gcal') }}{{ status('gmail') }}{{ status('gcal_ics') }}</h2>
+    {% if google_creds %}
+      <p class="help">Klik op Verbinden. Er opent een browservenster van Google; kies je account en geef toestemming voor Agenda en Gmail (alleen lezen).</p>
+      <div class="row">
+        <button hx-post="/setup/google" hx-target="#google-result" hx-swap="innerHTML">Verbinden met Google</button>
+        {% if google_token %}<button class="ghost" hx-post="/setup/google/disconnect" hx-target="#google-result" hx-swap="innerHTML">Ontkoppelen</button>{% endif %}
+        <span class="result" id="google-result" hx-get="/setup/google/status" hx-trigger="load, every 3s" hx-swap="innerHTML"></span>
+      </div>
+    {% else %}
+      <p class="help">Google-koppeling via één klik is in deze build niet beschikbaar (geen <code>google_credentials.json</code>). Gebruik hieronder de iCal-link van je agenda.</p>
+    {% endif %}
+    <details {% if not google_creds %}open{% endif %}><summary>Alternatief zonder inloggen: iCal-link van één Google-agenda</summary>
+      <p class="help">Google Agenda → Instellingen → kies je agenda → "Privéadres in iCal-formaat". Let op: het adres met <code>/private-…/</code>, niet het openbare.</p>
+      <form class="row" hx-post="/setup/save" hx-target="find .result" hx-swap="innerHTML">
+        <input type="url" name="GCAL_ICS_URL" value="{{ s.gcal_ics_url }}" placeholder="https://calendar.google.com/calendar/ical/…/private-…/basic.ics">
+        <button type="button" hx-post="/setup/test" hx-vals='{"source":"gcal_ics"}' hx-include="closest form" hx-target="next .result">Test</button>
+        <button type="submit">Opslaan</button><span class="result"></span>
+      </form>
+    </details>
+  </section>
+
+  <section class="panel step">
+    <h2>5 · Outlook-agenda (universiteit of werk) {{ status('outlook_ics') }}</h2>
+    <p class="help">{{ uni.outlook_help }}</p>
+    <form class="row" hx-post="/setup/save" hx-target="find .result" hx-swap="innerHTML">
+      <input type="url" name="OUTLOOK_ICS_URL" value="{{ s.outlook_ics_url }}" placeholder="https://outlook.office365.com/owa/calendar/…/calendar.ics">
+      <button type="button" hx-post="/setup/test" hx-vals='{"source":"outlook_ics"}' hx-include="closest form" hx-target="next .result">Test</button>
+      <button type="submit">Opslaan</button><span class="result"></span>
+    </form>
+  </section>
+
+  <section class="panel step">
+    <h2>6 · Trello {{ status('trello') }}</h2>
+    <p class="help">Ga naar <a href="https://trello.com/power-ups/admin" target="_blank" rel="noopener">trello.com/power-ups/admin</a>, maak een Power-Up aan (naam: Jarvis), open "API key", kopieer de key en klik op "Token" om een token te genereren. Het board-id is het stuk na <code>trello.com/b/</code> in de URL van je bord.</p>
+    <form class="row wrap" hx-post="/setup/save" hx-target="find .result" hx-swap="innerHTML">
+      <input type="text" name="TRELLO_KEY" value="{{ s.trello_key }}" placeholder="API key" style="max-width:20rem">
+      <input type="password" name="TRELLO_TOKEN" value="{{ s.trello_token }}" placeholder="token">
+      <input type="text" name="TRELLO_BOARD_ID" value="{{ s.trello_board_id }}" placeholder="board-id" style="max-width:10rem">
+      <button type="button" hx-post="/setup/test" hx-vals='{"source":"trello"}' hx-include="closest form" hx-target="next .result">Test</button>
+      <button type="submit">Opslaan</button><span class="result"></span>
+    </form>
+  </section>
+
+  <section class="panel step">
+    <h2>7 · Wekkers vanaf je Android-telefoon</h2>
+    <p class="help">Optioneel. Je telefoon stuurt de volgende wekker naar Jarvis. Kies een geheim, sla op, en volg de MacroDroid-instructie in <code>scripts/macrodroid_alarm.md</code>. Telefoon en computer moeten op hetzelfde wifi zitten.</p>
+    <form class="row" hx-post="/setup/save" hx-target="find .result" hx-swap="innerHTML">
+      <input type="text" name="DASHBOARD_SECRET" value="{{ s.secret }}" placeholder="geheim (zelf verzinnen)" style="max-width:20rem">
+      <button type="submit">Opslaan</button><span class="result"></span>
+    </form>
+  </section>
+
+  <form method="post" action="/setup/done" class="finish">
+    <button type="submit" class="primary">Klaar → naar het dashboard</button>
+  </form>
+</main>
+</body>
+</html>
