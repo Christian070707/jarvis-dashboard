@@ -1,7 +1,9 @@
 """Jarvis als desktop-app: start de server op een vrije poort en opent een venster (of de browser).
 
 Gebruik:  python desktop.py            venster + tray-icoon
-          python desktop.py --browser  alleen server + systeembrowser (handig zonder WebView)
+          python desktop.py --browser  alleen server + systeembrowser
+          python desktop.py --window   forceer het venster (Linux-bundel opent standaard in de browser,
+                                       omdat GTK/WebKit daar niet betrouwbaar mee te bundelen is)
 """
 from __future__ import annotations
 
@@ -74,7 +76,8 @@ def main() -> int:
             shutdown()
         return 0
 
-    if "--browser" in sys.argv:
+    linux_bundle = getattr(sys, "frozen", False) and sys.platform.startswith("linux")
+    if "--browser" in sys.argv or (linux_bundle and "--window" not in sys.argv):
         return run_in_browser()
     try:
         import webview  # type: ignore
