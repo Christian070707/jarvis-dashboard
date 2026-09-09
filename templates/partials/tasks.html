@@ -1,0 +1,26 @@
+{% import 'partials/_item.html' as it %}
+<h2>Taken <span class="count">{{ todos | length + external | length }}</span></h2>
+<form class="todo-form" hx-post="/todos" hx-target="#tasks" hx-swap="innerHTML" hx-on::after-request="this.reset()">
+  <input type="text" name="title" placeholder="Nieuwe taak…" required autocomplete="off">
+  <input type="date" name="due" title="Optionele datum">
+  <button type="submit">+</button>
+</form>
+<ul class="list todos">
+  {% for t in todos %}
+  <li class="item kind-task src-todo">
+    <button class="check" hx-post="/todos/{{ t.id }}/toggle" hx-target="#tasks" hx-swap="innerHTML" title="Afvinken">☐</button>
+    <span class="body">
+      <span class="title">{{ t.title }}</span>
+      {% if t.due %}<span class="sub">{{ t.due }}</span>{% endif %}
+    </span>
+    <button class="dismiss" hx-delete="/todos/{{ t.id }}" hx-target="#tasks" hx-swap="innerHTML" hx-confirm="Taak verwijderen?" title="Verwijderen">×</button>
+  </li>
+  {% endfor %}
+</ul>
+{% if done_count %}<p class="muted small">{{ done_count }} afgerond</p>{% endif %}
+{% if external %}
+<h3>Uit Trello / To Do / Canvas</h3>
+<ul class="list">
+  {% for i in external %}{{ it.row(i, now, when=i.subtitle or '') }}{% endfor %}
+</ul>
+{% endif %}

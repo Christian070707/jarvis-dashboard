@@ -1,0 +1,20 @@
+{% import 'partials/_item.html' as it %}
+<h2>Vandaag <span class="count">{{ today | length }}</span></h2>
+{% if alarms %}
+<ul class="list">
+  {% for a in alarms %}{{ it.row(a, now, show_day=True) }}{% endfor %}
+</ul>
+{% endif %}
+{% if today %}
+<ul class="list">
+  {% for e in today %}{{ it.row(e, now) }}{% endfor %}
+</ul>
+{% else %}
+<p class="muted">Niets gepland vandaag.</p>
+{% endif %}
+{% if tomorrow %}
+<h3>Morgen</h3>
+<ul class="list dim">
+  {% for e in tomorrow %}{{ it.row(e, now) }}{% endfor %}
+</ul>
+{% endif %}

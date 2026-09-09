@@ -1,0 +1,22 @@
+{# Eén regel voor een Item. Verwacht: item, now, en optioneel when (tekst links) #}
+{% macro row(item, now, when=None, show_day=False) -%}
+<li class="item kind-{{ item.kind }} src-{{ item.source }}" id="item-{{ item.id | replace(':', '-') | replace('@', '-') | replace('/', '-') }}">
+  <span class="icon" title="{{ item.source }}">{{ icons.get(item.source, '•') }}</span>
+  <span class="when">
+    {%- if when is not none -%}{{ when }}
+    {%- elif item.kind == 'event' or item.kind == 'alarm' -%}{% if show_day %}{{ item.start | day(now) }} {% endif %}{{ item | range }}
+    {%- elif item.due -%}{{ item.due | day(now) }}{% if not item.all_day %} {{ item.due | time }}{% endif %}
+    {%- elif item.start -%}{{ item.start | relative(now) }}
+    {%- endif -%}
+  </span>
+  <span class="body">
+    {% if item.url %}<a href="{{ item.url }}" target="_blank" rel="noopener" class="title">{{ item.title }}</a>
+    {% else %}<span class="title">{{ item.title }}</span>{% endif %}
+    {% if item.subtitle %}<span class="sub">{{ item.subtitle }}</span>{% endif %}
+    {% if item.meta.get('snippet') %}<span class="snippet">{{ item.meta.snippet }}</span>{% endif %}
+  </span>
+  {% if item.kind != 'alarm' %}
+  <button class="dismiss" title="Verbergen" hx-post="/dismiss" hx-vals='{"item_id": {{ item.id | tojson }}}' hx-target="closest li" hx-swap="outerHTML">×</button>
+  {% endif %}
+</li>
+{%- endmacro %}

@@ -1,0 +1,29 @@
+{% if current %}
+<div class="next-main live">
+  <span class="tag">NU</span>
+  <span class="icon">{{ icons.get(current.source, '•') }}</span>
+  {% if current.url %}<a href="{{ current.url }}" target="_blank" rel="noopener">{{ current.title }}</a>{% else %}<span>{{ current.title }}</span>{% endif %}
+  {% if current.subtitle %}<span class="sub">{{ current.subtitle }}</span>{% endif %}
+  <span class="cd" data-countdown="{{ current.end.isoformat() if current.end else '' }}" data-suffix=" resterend"></span>
+</div>
+{% endif %}
+{% if next %}
+<div class="next-main{% if current %} secondary{% endif %}">
+  <span class="tag">VOLGENDE</span>
+  <span class="icon">{{ icons.get(next.source, '•') }}</span>
+  {% if next.url %}<a href="{{ next.url }}" target="_blank" rel="noopener">{{ next.title }}</a>{% else %}<span>{{ next.title }}</span>{% endif %}
+  {% if next.subtitle %}<span class="sub">{{ next.subtitle }}</span>{% endif %}
+  <span class="when">{{ next.start | day(now) }} {{ next.start | time }}</span>
+  <span class="cd" data-countdown="{{ next.start.isoformat() }}" data-prefix="over "></span>
+</div>
+{% elif not current %}
+<div class="next-main idle"><span class="tag">VRIJ</span><span>Niets gepland in de komende 48 uur.</span></div>
+{% endif %}
+<div class="next-side">
+  {% if deadline %}
+  <span class="chip deadline" title="Eerstvolgende deadline">⏳ {{ deadline.title }} · {{ deadline.due | day(now) }}{% if not deadline.all_day %} {{ deadline.due | time }}{% endif %}
+    <b class="cd" data-countdown="{{ deadline.due.isoformat() }}" data-prefix="over "></b></span>
+  {% endif %}
+  {% if overdue %}<span class="chip overdue">⚠ {{ overdue }} verlopen</span>{% endif %}
+  {% if alarm %}<span class="chip alarm">⏰ {{ alarm | day(now) }} {{ alarm | time }}</span>{% endif %}
+</div>

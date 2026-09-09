@@ -1,0 +1,13 @@
+fastapi==0.141.1
+google-api-python-client==2.200.0
+google-auth-oauthlib==1.4.1
+httpx==0.28.1
+icalendar==7.3.0
+Jinja2==3.1.6
+msal==1.38.0
+pytest==9.1.1
+python-dotenv==1.2.3
+python-multipart==0.0.32
+recurring-ical-events==3.8.2
+uvicorn==0.52.4
+tzdata==2025.3

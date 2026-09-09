@@ -1,0 +1,10 @@
+<div class="briefing-head">
+  <span class="tag">BRIEFING</span>
+  <h2>{{ greeting }}.</h2>
+  <span class="spacer"></span>
+  <button class="ghost" id="briefing-speak" data-text="{{ text }}" title="Voorlezen">🔊 lees voor</button>
+  <button class="ghost" id="briefing-close" title="Verbergen voor vandaag">× vandaag niet meer</button>
+</div>
+<ul class="briefing-lines">
+  {% for l in lines %}<li style="--i:{{ loop.index0 }}">{{ l }}</li>{% endfor %}
+</ul>

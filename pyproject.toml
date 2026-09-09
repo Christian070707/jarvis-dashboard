@@ -1,0 +1,24 @@
+[project]
+name = "home-dashboard"
+version = "0.1.0"
+description = "Persoonlijk dashboard: rooster, deadlines, mail, taken en wekkers op één pagina"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi",
+  "uvicorn[standard]",
+  "httpx",
+  "jinja2",
+  "python-multipart",
+  "python-dotenv",
+  "icalendar",
+  "recurring-ical-events",
+  "google-api-python-client",
+  "google-auth-oauthlib",
+  "msal",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

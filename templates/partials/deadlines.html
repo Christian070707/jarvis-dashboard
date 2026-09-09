@@ -1,0 +1,11 @@
+{% import 'partials/_item.html' as it %}
+<h2>Deadlines <span class="count">{{ count }}</span></h2>
+{% if count == 0 %}<p class="muted">Geen deadlines in beeld.</p>{% endif %}
+{% for key, label in [('overdue', 'Verlopen'), ('today', 'Vandaag'), ('week', 'Deze week'), ('later', 'Later')] %}
+  {% if groups[key] %}
+  <h3 class="grp-{{ key }}">{{ label }} <span class="count">{{ groups[key] | length }}</span></h3>
+  <ul class="list">
+    {% for i in groups[key] %}{{ it.row(i, now) }}{% endfor %}
+  </ul>
+  {% endif %}
+{% endfor %}

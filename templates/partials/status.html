@@ -1,0 +1,8 @@
+{% for s in sources %}
+<span class="pill {{ 'ok' if s.ok else 'err' }}" title="{{ s.error or ('laatst: ' ~ (s.last_fetch | time)) }}"
+      hx-post="/api/refresh?source={{ s.source }}" hx-swap="none">
+  {{ icons.get(s.source, '•') }} {{ s.label }} {% if s.ok %}<b>{{ s.count }}</b>{% else %}!{% endif %}
+</span>
+{% else %}
+<span class="pill muted">geen bronnen actief</span>
+{% endfor %}

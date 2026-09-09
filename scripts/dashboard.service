@@ -1,0 +1,13 @@
+# Autostart bij login:  cp scripts/dashboard.service ~/.config/systemd/user/ && systemctl --user enable --now dashboard
+[Unit]
+Description=Home Dashboard
+After=network-online.target
+
+[Service]
+WorkingDirectory=%h/Projects/home_dashboard
+ExecStart=%h/Projects/home_dashboard/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

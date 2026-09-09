@@ -1,0 +1,9 @@
+{% import 'partials/_item.html' as it %}
+<h2>Inbox <span class="count">{{ mails | length }}</span></h2>
+{% if mails %}
+<ul class="list">
+  {% for m in mails %}{{ it.row(m, now) }}{% endfor %}
+</ul>
+{% else %}
+<p class="muted">Geen ongelezen mail (of Gmail/Outlook nog niet gekoppeld).</p>
+{% endif %}

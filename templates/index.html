@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jarvis</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%2730%27 fill=%27%230b1220%27/%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%2722%27 fill=%27none%27 stroke=%27%2337d2ff%27 stroke-width=%274%27/%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%2713%27 fill=%27none%27 stroke=%27%2337d2ff%27 stroke-width=%273%27 stroke-dasharray=%276 4%27/%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%276%27 fill=%27%23bff5ff%27/%3E%3C/svg%3E">
+  <script>
+    (function () {
+      var q = new URLSearchParams(location.search).get('theme'), t = null;
+      try { t = q || localStorage.getItem('jarvis.theme'); if (q) localStorage.setItem('jarvis.theme', q); } catch (e) {}
+      if (t && t !== 'arc') document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <link rel="stylesheet" href="{{ static_url('style.css') }}">
+  <script src="{{ static_url('htmx.min.js') }}"></script>
+</head>
+<body>
+<canvas id="rain" aria-hidden="true"></canvas>
+<div class="scanlines" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="reactor" aria-hidden="true"><i></i></span>
+    <h1>JARVIS</h1>
+    <span class="clock" id="clock"></span>
+    <span class="dayprog" id="dayprog" title="Voortgang van de dag"><i></i><b></b></span>
+  </div>
+  <div class="status" id="status" hx-get="/partials/status" hx-trigger="every 30s, refreshed from:body delay:3s" hx-swap="innerHTML">{{ pre.status | safe }}</div>
+  <div class="actions">
+    <button id="btn-briefing" title="Briefing openen">◉ briefing</button>
+    <button id="btn-focus" title="Focusmodus">◎ focus</button>
+    <button id="btn-theme" title="Thema wisselen">◐ arc</button>
+    <button hx-post="/api/refresh" hx-swap="none" title="Alle bronnen nu verversen">⟳</button>
+    <button hx-post="/dismiss/reset" hx-swap="none" hx-confirm="Alle verborgen items weer tonen?" title="Verborgen items terughalen">↺</button>
+  </div>
+</header>
+
+<div class="nextbar" id="next" hx-get="/partials/next" hx-trigger="every 60s, refreshed from:body delay:3s" hx-swap="innerHTML">{{ pre.next | safe }}</div>
+
+<section class="briefing panel" id="briefing" hidden hx-get="/partials/briefing" hx-trigger="every 300s, refreshed from:body delay:3s" hx-swap="innerHTML">{{ pre.briefing | safe }}</section>
+
+{% if not sources %}
+<div class="notice">
+  Nog geen bronnen ingesteld. Vul <code>.env</code> in met minimaal één URL of token en herstart. De eigen takenlijst werkt altijd.
+</div>
+{% endif %}
+
+<main class="grid">
+  <section class="col" id="today">
+    <div id="ring" hx-get="/partials/ring" hx-trigger="every 60s, refreshed from:body delay:3s" hx-swap="innerHTML">{{ pre.ring | safe }}</div>
+    <div id="today-list" hx-get="/partials/today" hx-trigger="every 60s, refreshed from:body delay:3s" hx-swap="innerHTML">{{ pre.today | safe }}</div>
+  </section>
+  <section class="col" id="deadlines" hx-get="/partials/deadlines" hx-trigger="every 60s, refreshed from:body delay:3s" hx-swap="innerHTML">{{ pre.deadlines | safe }}</section>
+  <section class="col" id="inbox" hx-get="/partials/inbox" hx-trigger="every 60s, refreshed from:body delay:3s" hx-swap="innerHTML">{{ pre.inbox | safe }}</section>
+  <section class="col" id="tasks" hx-get="/partials/tasks" hx-trigger="every 120s, refreshed from:body delay:3s" hx-swap="innerHTML">{{ pre.tasks | safe }}</section>
+</main>
+
+<div class="focus" id="focus" hidden>
+  <div class="focus-inner">
+    <div class="focus-pick" id="focus-pick" hx-get="/partials/focus" hx-trigger="focusopen from:body" hx-swap="innerHTML"></div>
+    <div class="focus-run" id="focus-run" hidden>
+      <p class="focus-label">FOCUS</p>
+      <h2 class="focus-title" id="focus-title"></h2>
+      <a class="focus-link" id="focus-link" target="_blank" rel="noopener" hidden>open in bron ↗</a>
+      <div class="focus-timer" id="focus-timer">25:00</div>
+      <div class="focus-bar"><i id="focus-bar"></i></div>
+      <div class="focus-actions">
+        <button id="focus-plus" title="5 minuten erbij">+5 min</button>
+        <button id="focus-stop">stop</button>
+      </div>
+    </div>
+    <button class="focus-close" id="focus-close" title="Sluiten (Esc)">×</button>
+  </div>
+</div>
+
+<script src="{{ static_url('app.js') }}"></script>
+</body>
+</html>
