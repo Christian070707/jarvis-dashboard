@@ -8,7 +8,7 @@ naar de bron. Draait lokaal op `http://127.0.0.1:8000`.
 
 **Als app (aanbevolen)**: download de laatste release voor je systeem uit
 [Releases](../../releases), pak uit en start `Jarvis` (Windows: `Jarvis.exe`). Bij de eerste
-start opent de instellingenwizard. Op Linux opent Jarvis in je browser (`./Jarvis --window` probeert een eigen venster). Je gegevens staan in je eigen gebruikersmap
+start opent de instellingenwizard. Windows toont bij de eerste start een blauw SmartScreen-venster ("Unknown Publisher" of "SmartScreen can't be reached"): dat komt omdat de app niet digitaal is ondertekend. Klik op "More info" en dan "Run anyway", of direct op "Run". Op Linux opent Jarvis in je browser (`./Jarvis --window` probeert een eigen venster). Je gegevens staan in je eigen gebruikersmap
 (Windows: `%APPDATA%\Jarvis`, Linux: `~/.local/share/Jarvis`, Mac: `~/Library/Application Support/Jarvis`).
 
 **Vanuit de broncode**: Linux/Mac `./start.sh`, Windows dubbelklik `start.bat` (Python 3.12+).
@@ -27,6 +27,8 @@ cp .env.example .env
 Tests: `.venv/bin/pytest`
 
 ## Bronnen koppelen (in volgorde van moeite)
+Uitgebreide stap-voor-stap-uitleg per bron, inclusief probleemoplossing: [docs/KOPPELEN.md](docs/KOPPELEN.md).
+
 | Bron | Wat je nodig hebt | Waar |
 |---|---|---|
 | TimeEdit | iCal-abonnementslink | cloud.timeedit.net/nl_utwente/web → je rooster → Abonneren |

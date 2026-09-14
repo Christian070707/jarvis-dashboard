@@ -44,17 +44,26 @@ def main() -> int:
     from app.config import DATA_DIR  # bepaalt ook de datamap (per gebruiker bij een ingepakte app)
 
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s",
-        handlers=[logging.FileHandler(DATA_DIR / "jarvis.log", encoding="utf-8"), logging.StreamHandler()],
-    )
+    # Een venster-app (PyInstaller console=False op Windows) heeft geen stdout/stderr: die zijn None.
+    # Uvicorn en print() gaan daar op stuk, dus stuur alles naar het logbestand.
+    log_file = DATA_DIR / "jarvis.log"
+    handlers: list[logging.Handler] = [logging.FileHandler(log_file, encoding="utf-8")]
+    if sys.stdout is None or sys.stderr is None:
+        stream = open(log_file, "a", encoding="utf-8", buffering=1)  # noqa: SIM115
+        sys.stdout = sys.stdout or stream
+        sys.stderr = sys.stderr or stream
+    else:
+        handlers.append(logging.StreamHandler())
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s", handlers=handlers)
     log = logging.getLogger("desktop")
 
     import uvicorn
 
     from app.main import app
 
-    config = uvicorn.Config(app, host="127.0.0.1", port=port, log_level="info")
+    # log_config=None: uvicorn gebruikt dan de logging hierboven en probeert geen eigen
+    # kleurenformatter op te zetten (die leest sys.stdout.isatty() en crasht zonder console).
+    config = uvicorn.Config(app, host="127.0.0.1", port=port, log_level="info", log_config=None)
     server = uvicorn.Server(config)
     threading.Thread(target=server.run, name="uvicorn", daemon=True).start()
     if not wait_for("127.0.0.1", port):
