@@ -1,24 +1,31 @@
 # Jarvis
 
-Eén pagina met rooster (TimeEdit), agenda's (Google, Outlook), deadlines (Canvas, Trello),
-ongelezen mail (Gmail, Outlook), wekkers (Android) en een eigen takenlijst. Elk item linkt door
-naar de bron. Draait lokaal op `http://127.0.0.1:8000`.
+One page with your timetable (TimeEdit), calendars (Google, Outlook), deadlines (Canvas, Trello),
+unread mail (Gmail, Outlook), alarms (Android) and your own to-do list. Every item links back
+to its source. Runs locally on `http://127.0.0.1:8000`.
 
-## Starten
+> The interface is currently in Dutch, and some sources (TimeEdit, Canvas) are preconfigured
+> for the University of Twente, but any iCal feed or Canvas instance works.
 
-**Als app (aanbevolen)**: download de laatste release voor je systeem uit
-[Releases](../../releases), pak uit en start `Jarvis` (Windows: `Jarvis.exe`). Bij de eerste
-start opent de instellingenwizard. Windows toont bij de eerste start een blauw SmartScreen-venster ("Unknown Publisher" of "SmartScreen can't be reached"): dat komt omdat de app niet digitaal is ondertekend. Klik op "More info" en dan "Run anyway", of direct op "Run". Op Linux opent Jarvis in je browser (`./Jarvis --window` probeert een eigen venster). Je gegevens staan in je eigen gebruikersmap
-(Windows: `%APPDATA%\Jarvis`, Linux: `~/.local/share/Jarvis`, Mac: `~/Library/Application Support/Jarvis`).
+## Getting started
 
-**Vanuit de broncode**: Linux/Mac `./start.sh`, Windows dubbelklik `start.bat` (Python 3.12+).
-Het script maakt een venv, installeert alles en opent `http://127.0.0.1:8000`. Ga naar
-`/setup` (⚙ op het dashboard) om bronnen te koppelen; `.env` is optioneel en dient als fallback.
+**As an app (recommended)**: download the latest release for your system from
+[Releases](../../releases), extract it and run `Jarvis` (Windows: `Jarvis.exe`). The setup
+wizard opens on first launch. On first launch Windows shows a blue SmartScreen dialog
+("Unknown Publisher" or "SmartScreen can't be reached") because the app is not code-signed.
+Click "More info" and then "Run anyway", or "Run" directly. On Linux, Jarvis opens in your
+browser (`./Jarvis --window` tries to open its own window). Your data is stored in your user
+folder (Windows: `%APPDATA%\Jarvis`, Linux: `~/.local/share/Jarvis`,
+Mac: `~/Library/Application Support/Jarvis`).
 
-**Desktopvenster vanuit de broncode**: `pip install -r requirements-build.txt` en `python desktop.py`
-(of `python desktop.py --browser` zonder venster).
+**From source**: Linux/Mac `./start.sh`, Windows double-click `start.bat` (Python 3.12+).
+The script creates a venv, installs everything and opens `http://127.0.0.1:8000`. Go to
+`/setup` (⚙ on the dashboard) to connect sources; `.env` is optional and serves as a fallback.
 
-Handmatig:
+**Desktop window from source**: `pip install -r requirements-build.txt` and `python desktop.py`
+(or `python desktop.py --browser` without a window).
+
+Manually:
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 cp .env.example .env
@@ -26,26 +33,28 @@ cp .env.example .env
 ```
 Tests: `.venv/bin/pytest`
 
-## Bronnen koppelen (in volgorde van moeite)
-Uitgebreide stap-voor-stap-uitleg per bron, inclusief probleemoplossing: [docs/KOPPELEN.md](docs/KOPPELEN.md).
+## Connecting sources (easiest first)
+Detailed step-by-step instructions per source, including troubleshooting (in Dutch):
+[docs/KOPPELEN.md](docs/KOPPELEN.md).
 
-| Bron | Wat je nodig hebt | Waar |
+| Source | What you need | Where |
 |---|---|---|
-| TimeEdit | iCal-abonnementslink | cloud.timeedit.net/nl_utwente/web → je rooster → Abonneren |
-| Google Calendar | privé iCal-URL (of later OAuth) | Google Calendar → Instellingen → agenda → "Privéadres in iCal-formaat" |
-| Canvas agenda | Calendar Feed-URL | canvas.utwente.nl → Agenda → "Calendar Feed" |
-| Outlook agenda | gepubliceerde ICS-link | outlook.office.com → Instellingen → Agenda → Gedeelde agenda's → Publiceren |
-| Trello | API key + token + board-id | trello.com/power-ups/admin |
-| Canvas API | persoonlijk toegangstoken | Canvas → Account → Instellingen → Nieuw toegangstoken |
-| Gmail + Google Calendar API | OAuth-token | `scripts/google_auth.py` (zie docstring) |
-| Outlook mail/To Do (UT) | Entra app + device-login | `scripts/ms_auth.py` (zie docstring; kan door UT geblokkeerd zijn) |
-| Wekkers | MacroDroid/Tasker-macro | `scripts/macrodroid_alarm.md` |
+| TimeEdit | iCal subscription link | cloud.timeedit.net/nl_utwente/web → your timetable → Subscribe |
+| Google Calendar | secret iCal URL (or OAuth) | Google Calendar → Settings → calendar → "Secret address in iCal format" |
+| Canvas calendar | Calendar Feed URL | canvas.utwente.nl → Calendar → "Calendar Feed" |
+| Outlook calendar | published ICS link | outlook.office.com → Settings → Calendar → Shared calendars → Publish |
+| Trello | API key + token + board ID | trello.com/power-ups/admin |
+| Canvas API | personal access token | Canvas → Account → Settings → New access token |
+| Gmail + Google Calendar API | OAuth token | `scripts/google_auth.py` (see docstring) |
+| Outlook mail/To Do | Entra app + device login | `scripts/ms_auth.py` (see docstring; may be blocked by your organisation) |
+| Alarms | MacroDroid/Tasker macro | `scripts/macrodroid_alarm.md` |
 
-Status per bron staat bovenin de pagina (klik op een pil om die bron te verversen) en op `/api/status`.
+The status of each source is shown at the top of the page (click a pill to refresh that source)
+and at `/api/status`.
 
-## Zelf bouwen
-`scripts/build.sh` (Linux/Mac) of `scripts/build_windows.ps1` (Windows) maakt `dist/Jarvis/`.
-GitHub Actions bouwt bij elke push voor Windows, Linux en Mac; een tag `v*` maakt een release.
+## Building
+`scripts/build.sh` (Linux/Mac) or `scripts/build_windows.ps1` (Windows) produces `dist/Jarvis/`.
+GitHub Actions builds for Windows, Linux and Mac on every push; a `v*` tag creates a release.
 
-## Autostart (Linux, zonder app)
+## Autostart (Linux, without the app)
 `cp scripts/dashboard.service ~/.config/systemd/user/ && systemctl --user enable --now dashboard`
